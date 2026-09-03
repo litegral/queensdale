@@ -4,13 +4,13 @@ const description =
 	'A small private Minecraft world for friends. Friendly survival, mostly vanilla, on Java Edition 26.1.2.';
 
 const features = [
-	['Java Edition · Minecraft 26.1.2', '#e2b458'],
-	['Survival · Easy difficulty', '#db8b73'],
-	['Mostly vanilla gameplay', '#70a47a'],
-	['Land claims and protected builds', '#7098b8'],
-	['Premium and offline accounts supported', '#9a86b7'],
-	['50% sleep requirement', '#697bb0'],
-	['Performance-optimized Fabric server', '#b17a91'],
+	'Java Edition · Minecraft 26.1.2',
+	'Survival · Easy difficulty',
+	'Mostly vanilla gameplay',
+	'Land claims and protected builds',
+	'Premium and offline accounts supported',
+	'50% sleep requirement',
+	'Performance-optimized Fabric server',
 ];
 ---
 
@@ -41,15 +41,9 @@ const features = [
 	<body>
 		<main>
 			<h1>Queensdale</h1>
-			<p class="intro">A little world of our own.</p>
 
 			<ul class="features">
-				{features.map(([feature, color]) => (
-					<li>
-						<span class="feature-icon" style={`--icon-color: ${color}`} aria-hidden="true"></span>
-						{feature}
-					</li>
-				))}
+				{features.map((feature) => <li>{feature}</li>)}
 			</ul>
 
 			<div class="voice">
@@ -63,7 +57,13 @@ const features = [
 			</div>
 
 			<div class="server">
-				<p class="label">Server address</p>
+				<div class="server-meta">
+					<p class="label">Server address</p>
+					<p class="player-status" data-player-status aria-live="polite">
+						<span aria-hidden="true"></span>
+						Checking status…
+					</p>
+				</div>
 				<div class="address">
 					<code id="server-address">mc.litegral.com</code>
 					<button type="button" data-copy-button aria-describedby="copy-status">
@@ -83,7 +83,45 @@ const features = [
 			const button = document.querySelector('[data-copy-button]');
 			const label = button?.querySelector('[data-copy-label]');
 			const status = document.querySelector('#copy-status');
+			const playerStatus = document.querySelector('[data-player-status]');
 			const address = document.querySelector('#server-address')?.textContent?.trim() ?? '';
+			const statusUrl = 'https://status.mc.litegral.com/status';
+
+			const showOfflineStatus = () => {
+				if (!playerStatus) return;
+				playerStatus.classList.add('is-offline');
+				playerStatus.lastChild.textContent = ' Server may be offline';
+			};
+
+			const loadPlayerStatus = async () => {
+				try {
+					const response = await fetch(statusUrl, { signal: AbortSignal.timeout(6000) });
+					if (!response.ok) throw new Error('Status request failed');
+					const data = await response.json();
+
+					if (data.online === false || data.status === 'offline') {
+						showOfflineStatus();
+						return;
+					}
+
+					const count =
+						data.players?.online ??
+						(typeof data.players === 'number' ? data.players : undefined) ??
+						data.playerCount ??
+						data.player_count ??
+						data.onlinePlayers;
+					if (!Number.isFinite(Number(count))) throw new Error('Missing player count');
+
+					if (playerStatus) {
+						const players = Number(count);
+						playerStatus.lastChild.textContent = ` ${players} ${players === 1 ? 'player' : 'players'} online`;
+					}
+				} catch {
+					showOfflineStatus();
+				}
+			};
+
+			loadPlayerStatus();
 
 			button?.addEventListener('click', async () => {
 				try {
@@ -144,12 +182,6 @@ const features = [
 		letter-spacing: -0.04em;
 	}
 
-	.intro {
-		margin: 20px 0 0;
-		font-size: 19px;
-		font-weight: 500;
-	}
-
 	.features {
 		margin: 44px 0 0;
 		padding: 0;
@@ -158,32 +190,21 @@ const features = [
 	}
 
 	.features li {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		padding: 11px 0;
+		position: relative;
+		padding: 11px 0 11px 18px;
 		border-bottom: 1px solid #d8d8d3;
 	}
 
-	.feature-icon {
+	.features li::before {
 		position: relative;
-		width: 20px;
-		height: 20px;
-		flex: 0 0 20px;
-		border-radius: 5px;
-		background: var(--icon-color);
-	}
-
-	.feature-icon::after {
-		position: absolute;
-		top: 5px;
-		left: 7px;
-		width: 4px;
-		height: 7px;
-		border: solid #fff;
-		border-width: 0 2px 2px 0;
+		display: inline-block;
+		width: 5px;
+		height: 1px;
+		margin-left: -18px;
+		margin-right: 13px;
+		vertical-align: middle;
+		background: #686863;
 		content: '';
-		transform: rotate(45deg);
 	}
 
 	.voice {
@@ -214,12 +235,40 @@ const features = [
 	}
 
 	.label {
-		margin: 0 0 10px;
+		margin: 0;
 		color: #686863;
 		font-size: 12px;
 		font-weight: 500;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+	}
+
+	.server-meta {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		margin-bottom: 10px;
+	}
+
+	.player-status {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		margin: 0;
+		color: #686863;
+		font-size: 12px;
+	}
+
+	.player-status span {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: #6d8264;
+	}
+
+	.player-status.is-offline span {
+		background: #8b8982;
 	}
 
 	.address {
