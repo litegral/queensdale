@@ -4,13 +4,13 @@ const description =
 	'A small private Minecraft world for friends. Friendly survival, mostly vanilla, on Java Edition 26.1.2.';
 
 const features = [
-	'Java Edition · Minecraft 26.1.2',
-	'Survival · Easy difficulty',
-	'Mostly vanilla gameplay',
-	'Land claims and protected builds',
-	'Premium and offline accounts supported',
-	'50% sleep requirement',
-	'Performance-optimized Fabric server',
+	['Java Edition · Minecraft 26.1.2', '#e2b458'],
+	['Survival · Easy difficulty', '#db8b73'],
+	['Mostly vanilla gameplay', '#70a47a'],
+	['Land claims and protected builds', '#7098b8'],
+	['Premium and offline accounts supported', '#9a86b7'],
+	['50% sleep requirement', '#697bb0'],
+	['Performance-optimized Fabric server', '#b17a91'],
 ];
 ---
 
@@ -42,10 +42,14 @@ const features = [
 		<main>
 			<h1>Queensdale</h1>
 			<p class="intro">A little world of our own.</p>
-			<p class="supporting">Friendly survival, mostly vanilla, made for friends.</p>
 
 			<ul class="features">
-				{features.map((feature) => <li>{feature}</li>)}
+				{features.map(([feature, color]) => (
+					<li>
+						<span class="feature-icon" style={`--icon-color: ${color}`} aria-hidden="true"></span>
+						{feature}
+					</li>
+				))}
 			</ul>
 
 			<div class="voice">
@@ -146,11 +150,6 @@ const features = [
 		font-weight: 500;
 	}
 
-	.supporting {
-		margin: 4px 0 0;
-		color: #686863;
-	}
-
 	.features {
 		margin: 44px 0 0;
 		padding: 0;
@@ -159,8 +158,32 @@ const features = [
 	}
 
 	.features li {
+		display: flex;
+		align-items: center;
+		gap: 12px;
 		padding: 11px 0;
 		border-bottom: 1px solid #d8d8d3;
+	}
+
+	.feature-icon {
+		position: relative;
+		width: 20px;
+		height: 20px;
+		flex: 0 0 20px;
+		border-radius: 5px;
+		background: var(--icon-color);
+	}
+
+	.feature-icon::after {
+		position: absolute;
+		top: 5px;
+		left: 7px;
+		width: 4px;
+		height: 7px;
+		border: solid #fff;
+		border-width: 0 2px 2px 0;
+		content: '';
+		transform: rotate(45deg);
 	}
 
 	.voice {
