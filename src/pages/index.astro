@@ -12,6 +12,16 @@ const features = [
 	'50% sleep requirement',
 	'Performance-optimized Fabric server',
 ];
+
+const modGroups = [
+	['Core', ['Fabric API']],
+	['Performance', ['Lithium', 'FerriteCore', 'Krypton', 'Chunky']],
+	['Diagnostics', ['spark']],
+	['Authentication', ['EasyAuth']],
+	['Protection', ['Open Parties and Claims']],
+	['Voice', ['Simple Voice Chat · optional']],
+	['Gameplay', ['Enchanting Infuser']],
+];
 ---
 
 <!doctype html>
@@ -46,24 +56,8 @@ const features = [
 				{features.map((feature) => <li>{feature}</li>)}
 			</ul>
 
-			<div class="voice">
-				<p><strong>Voice chat is optional.</strong> Simple Voice Chat is supported.</p>
-				<p>
-					Install the client mod to use proximity voice.
-					<a href="https://modrinth.com/plugin/simple-voice-chat" target="_blank" rel="noreferrer">
-						Get the voice mod
-					</a>
-				</p>
-			</div>
-
 			<div class="server">
-				<div class="server-meta">
-					<p class="label">Server address</p>
-					<p class="player-status" data-player-status aria-live="polite">
-						<span aria-hidden="true"></span>
-						Checking status…
-					</p>
-				</div>
+				<p class="label">Server address</p>
 				<div class="address">
 					<code id="server-address">mc.litegral.com</code>
 					<button type="button" data-copy-button aria-describedby="copy-status">
@@ -77,51 +71,51 @@ const features = [
 					<p>Returning: <code>/login &lt;password&gt;</code></p>
 				</div>
 			</div>
+
+			<details class="mods-disclosure">
+				<summary>
+					<span>Mods &amp; recommended client</span>
+					<span class="disclosure-action" aria-hidden="true">View</span>
+				</summary>
+
+				<div class="mods-content">
+					<section class="client" aria-labelledby="client-label">
+						<div>
+							<p class="label" id="client-label">Recommended client</p>
+							<p class="client-name">Queensdale 1.0.0</p>
+							<p>Import the pack into a Modrinth-compatible launcher.</p>
+						</div>
+						<a class="download" href="https://storage.litegral.com/Queensdale%201.0.0.mrpack">
+							Download modpack
+						</a>
+					</section>
+
+					<section class="mods" aria-labelledby="mods-label">
+						<p class="label" id="mods-label">What’s installed</p>
+						<dl>
+							{modGroups.map(([group, mods]) => (
+								<div>
+									<dt>{group}</dt>
+									<dd>{mods.join(' · ')}</dd>
+								</div>
+							))}
+						</dl>
+						<p class="voice-note">
+							Proximity voice is optional and requires the{' '}
+							<a href="https://modrinth.com/plugin/simple-voice-chat" target="_blank" rel="noreferrer">
+								Simple Voice Chat client mod
+							</a>.
+						</p>
+					</section>
+				</div>
+			</details>
 		</main>
 
 		<script>
 			const button = document.querySelector('[data-copy-button]');
 			const label = button?.querySelector('[data-copy-label]');
 			const status = document.querySelector('#copy-status');
-			const playerStatus = document.querySelector('[data-player-status]');
 			const address = document.querySelector('#server-address')?.textContent?.trim() ?? '';
-			const statusUrl = 'https://status-mc.litegral.com/status';
-
-			const showOfflineStatus = () => {
-				if (!playerStatus) return;
-				playerStatus.classList.add('is-offline');
-				playerStatus.lastChild.textContent = ' Server may be offline';
-			};
-
-			const loadPlayerStatus = async () => {
-				try {
-					const response = await fetch(statusUrl, { signal: AbortSignal.timeout(6000) });
-					if (!response.ok) throw new Error('Status request failed');
-					const data = await response.json();
-
-					if (data.online === false || data.status === 'offline') {
-						showOfflineStatus();
-						return;
-					}
-
-					const count =
-						data.players?.online ??
-						(typeof data.players === 'number' ? data.players : undefined) ??
-						data.playerCount ??
-						data.player_count ??
-						data.onlinePlayers;
-					if (!Number.isFinite(Number(count))) throw new Error('Missing player count');
-
-					if (playerStatus) {
-						const players = Number(count);
-						playerStatus.lastChild.textContent = ` ${players} ${players === 1 ? 'player' : 'players'} online`;
-					}
-				} catch {
-					showOfflineStatus();
-				}
-			};
-
-			loadPlayerStatus();
 
 			button?.addEventListener('click', async () => {
 				try {
@@ -207,25 +201,130 @@ const features = [
 		content: '';
 	}
 
-	.voice {
-		margin-top: 24px;
-		color: #686863;
-		font-size: 13px;
-	}
-
-	.voice p {
-		margin: 3px 0;
-	}
-
-	.voice strong {
-		color: #20201e;
-		font-weight: 600;
-	}
-
 	a {
 		color: #20201e;
 		font-weight: 600;
 		text-underline-offset: 3px;
+	}
+
+	.mods-disclosure {
+		margin-top: 44px;
+		border-block: 1px solid #d8d8d3;
+	}
+
+	.mods-disclosure summary {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 20px;
+		padding: 14px 0;
+		cursor: pointer;
+		font-size: 13px;
+		font-weight: 600;
+		list-style: none;
+	}
+
+	.mods-disclosure summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.disclosure-action {
+		color: #686863;
+		font-size: 12px;
+		font-weight: 500;
+	}
+
+	.mods-disclosure[open] .disclosure-action {
+		font-size: 0;
+	}
+
+	.mods-disclosure[open] .disclosure-action::after {
+		content: 'Hide';
+		font-size: 12px;
+	}
+
+	.mods-content {
+		padding: 10px 0 24px;
+		border-top: 1px solid #d8d8d3;
+	}
+
+	.client {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 24px;
+		padding: 14px 0 22px;
+		border-bottom: 1px solid #20201e;
+	}
+
+	.client p {
+		margin: 0;
+	}
+
+	.client .client-name {
+		margin-top: 3px;
+		font-size: 18px;
+		font-weight: 500;
+	}
+
+	.client-name + p {
+		margin-top: 3px;
+		color: #686863;
+		font-size: 12px;
+	}
+
+	.download {
+		flex: 0 0 auto;
+		padding: 10px 14px;
+		border: 1px solid #20201e;
+		border-radius: 3px;
+		background: #20201e;
+		color: #fff;
+		font-size: 13px;
+		text-decoration: none;
+		transition: background-color 140ms ease, color 140ms ease;
+	}
+
+	.download:hover {
+		background: transparent;
+		color: #20201e;
+	}
+
+	.mods {
+		margin-top: 24px;
+	}
+
+	.mods dl {
+		margin: 10px 0 0;
+		border-top: 1px solid #d8d8d3;
+	}
+
+	.mods dl div {
+		display: grid;
+		grid-template-columns: 120px 1fr;
+		gap: 20px;
+		padding: 8px 0;
+		border-bottom: 1px solid #d8d8d3;
+	}
+
+	.mods dt,
+	.mods dd {
+		margin: 0;
+		font-size: 13px;
+	}
+
+	.mods dt,
+	.voice-note {
+		color: #686863;
+	}
+
+	.mods dd {
+		font-weight: 500;
+	}
+
+	.voice-note {
+		margin: 12px 0 0;
+		font-size: 12px;
 	}
 
 	.server {
@@ -235,40 +334,12 @@ const features = [
 	}
 
 	.label {
-		margin: 0;
+		margin: 0 0 10px;
 		color: #686863;
 		font-size: 12px;
 		font-weight: 500;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-	}
-
-	.server-meta {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 16px;
-		margin-bottom: 10px;
-	}
-
-	.player-status {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		margin: 0;
-		color: #686863;
-		font-size: 12px;
-	}
-
-	.player-status span {
-		width: 6px;
-		height: 6px;
-		border-radius: 50%;
-		background: #6d8264;
-	}
-
-	.player-status.is-offline span {
-		background: #8b8982;
 	}
 
 	.address {
@@ -340,6 +411,20 @@ const features = [
 	}
 
 	@media (max-width: 520px) {
+		.client {
+			align-items: stretch;
+			flex-direction: column;
+		}
+
+		.download {
+			text-align: center;
+		}
+
+		.mods dl div {
+			grid-template-columns: 1fr;
+			gap: 2px;
+		}
+
 		.address {
 			align-items: stretch;
 			flex-direction: column;
