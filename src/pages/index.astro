@@ -57,7 +57,13 @@ const modGroups = [
 			</ul>
 
 			<div class="server">
-				<p class="label">Server address</p>
+				<div class="server-meta">
+					<p class="label">Server address</p>
+					<p class="player-status" data-player-status aria-live="polite">
+						<span aria-hidden="true"></span>
+						Checking status…
+					</p>
+				</div>
 				<div class="address">
 					<code id="server-address">mc.litegral.com</code>
 					<button type="button" data-copy-button aria-describedby="copy-status">
@@ -118,7 +124,36 @@ const modGroups = [
 			const button = document.querySelector('[data-copy-button]');
 			const label = button?.querySelector('[data-copy-label]');
 			const status = document.querySelector('#copy-status');
+			const playerStatus = document.querySelector('[data-player-status]');
 			const address = document.querySelector('#server-address')?.textContent?.trim() ?? '';
+			const statusUrl = 'https://status-mc.litegral.com/status';
+
+			const showOfflineStatus = () => {
+				if (!playerStatus) return;
+				playerStatus.classList.add('is-offline');
+				playerStatus.lastChild.textContent = ' Server may be offline';
+			};
+
+			const loadPlayerStatus = async () => {
+				try {
+					const response = await fetch(statusUrl, { signal: AbortSignal.timeout(6000) });
+					if (!response.ok) throw new Error('Status request failed');
+					const data = await response.json();
+
+					if (data.online === false) {
+						showOfflineStatus();
+						return;
+					}
+
+					if (!Number.isFinite(Number(data.players))) throw new Error('Missing player count');
+					const players = Number(data.players);
+					playerStatus.lastChild.textContent = ` ${players} ${players === 1 ? 'player' : 'players'} online`;
+				} catch {
+					showOfflineStatus();
+				}
+			};
+
+			loadPlayerStatus();
 
 			button?.addEventListener('click', async () => {
 				try {
@@ -343,6 +378,38 @@ const modGroups = [
 		font-weight: 500;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+	}
+
+	.server-meta {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		margin-bottom: 10px;
+	}
+
+	.server-meta .label {
+		margin: 0;
+	}
+
+	.player-status {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		margin: 0;
+		color: #686863;
+		font-size: 12px;
+	}
+
+	.player-status span {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: #6d8264;
+	}
+
+	.player-status.is-offline span {
+		background: #8b8982;
 	}
 
 	.address {
