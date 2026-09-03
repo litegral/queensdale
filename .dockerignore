@@ -1,0 +1,9 @@
+.astro
+.git
+.github
+.playwright-cli
+dist
+node_modules
+npm-debug.log*
+README.md
+wrangler.jsonc
