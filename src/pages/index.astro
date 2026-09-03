@@ -127,6 +127,8 @@ const modGroups = [
 			const playerStatus = document.querySelector('[data-player-status]');
 			const address = document.querySelector('#server-address')?.textContent?.trim() ?? '';
 			const statusUrl = 'https://status-mc.litegral.com/status';
+			const statusRefreshInterval = 15000;
+			let statusRequestInProgress = false;
 
 			const showOfflineStatus = () => {
 				if (!playerStatus) return;
@@ -135,6 +137,9 @@ const modGroups = [
 			};
 
 			const loadPlayerStatus = async () => {
+				if (statusRequestInProgress) return;
+				statusRequestInProgress = true;
+
 				try {
 					const response = await fetch(statusUrl, { signal: AbortSignal.timeout(6000) });
 					if (!response.ok) throw new Error('Status request failed');
@@ -150,10 +155,19 @@ const modGroups = [
 					playerStatus.lastChild.textContent = ` ${players} ${players === 1 ? 'player' : 'players'} online`;
 				} catch {
 					showOfflineStatus();
+				} finally {
+					statusRequestInProgress = false;
 				}
 			};
 
 			loadPlayerStatus();
+			window.setInterval(() => {
+				if (!document.hidden) loadPlayerStatus();
+			}, statusRefreshInterval);
+
+			document.addEventListener('visibilitychange', () => {
+				if (!document.hidden) loadPlayerStatus();
+			});
 
 			button?.addEventListener('click', async () => {
 				try {
