@@ -1,17 +1,286 @@
 ---
+const title = 'Queensdale | A little world of our own';
+const description =
+	'A small private Minecraft world for friends. Friendly survival, mostly vanilla, on Java Edition 26.1.2.';
 
+const features = [
+	'Java Edition · Minecraft 26.1.2',
+	'Survival · Easy difficulty',
+	'Mostly vanilla gameplay',
+	'Land claims and protected builds',
+	'Premium and offline accounts supported',
+	'50% sleep requirement',
+	'Performance-optimized Fabric server',
+];
 ---
 
+<!doctype html>
 <html lang="en">
 	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<meta name="description" content={description} />
+		<meta name="theme-color" content="#f7f7f5" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Queensdale" />
+		<meta property="og:title" content="Queensdale" />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content="/og-image.png" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" sizes="any" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap"
+			rel="stylesheet"
+		/>
+		<title>{title}</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<main>
+			<h1>Queensdale</h1>
+			<p class="intro">A little world of our own.</p>
+			<p class="supporting">Friendly survival, mostly vanilla, made for friends.</p>
+
+			<ul class="features">
+				{features.map((feature) => <li>{feature}</li>)}
+			</ul>
+
+			<div class="voice">
+				<p><strong>Voice chat is optional.</strong> Simple Voice Chat is supported.</p>
+				<p>
+					Install the client mod to use proximity voice.
+					<a href="https://modrinth.com/plugin/simple-voice-chat" target="_blank" rel="noreferrer">
+						Get the voice mod
+					</a>
+				</p>
+			</div>
+
+			<div class="server">
+				<p class="label">Server address</p>
+				<div class="address">
+					<code id="server-address">mc.litegral.com</code>
+					<button type="button" data-copy-button aria-describedby="copy-status">
+						<span data-copy-label>Copy address</span>
+					</button>
+				</div>
+				<span class="sr-only" id="copy-status" aria-live="polite"></span>
+
+				<div class="login">
+					<p>First time: <code>/register &lt;password&gt;</code></p>
+					<p>Returning: <code>/login &lt;password&gt;</code></p>
+				</div>
+			</div>
+		</main>
+
+		<script>
+			const button = document.querySelector('[data-copy-button]');
+			const label = button?.querySelector('[data-copy-label]');
+			const status = document.querySelector('#copy-status');
+			const address = document.querySelector('#server-address')?.textContent?.trim() ?? '';
+
+			button?.addEventListener('click', async () => {
+				try {
+					await navigator.clipboard.writeText(address);
+					if (label) label.textContent = 'Copied';
+					if (status) status.textContent = 'Server address copied.';
+					window.setTimeout(() => {
+						if (label) label.textContent = 'Copy address';
+						if (status) status.textContent = '';
+					}, 2000);
+				} catch {
+					if (label) label.textContent = 'Copy failed';
+					if (status) status.textContent = `Copy failed. The address is ${address}.`;
+				}
+			});
+		</script>
 	</body>
 </html>
+
+<style is:global>
+	:root {
+		font-family: 'DM Sans', sans-serif;
+		font-synthesis: none;
+		background: #f7f7f5;
+		color: #20201e;
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	body {
+		min-width: 320px;
+		margin: 0;
+		background: #f7f7f5;
+		color: #20201e;
+		font-size: 15px;
+		line-height: 1.55;
+		-webkit-font-smoothing: antialiased;
+	}
+
+	::selection {
+		background: #20201e;
+		color: #f7f7f5;
+	}
+
+	main {
+		width: min(100% - 40px, 620px);
+		margin: 0 auto;
+		padding: clamp(64px, 11vh, 112px) 0 64px;
+	}
+
+	h1 {
+		margin: 0;
+		font-size: clamp(2.6rem, 10vw, 4.5rem);
+		font-weight: 500;
+		line-height: 1;
+		letter-spacing: -0.04em;
+	}
+
+	.intro {
+		margin: 20px 0 0;
+		font-size: 19px;
+		font-weight: 500;
+	}
+
+	.supporting {
+		margin: 4px 0 0;
+		color: #686863;
+	}
+
+	.features {
+		margin: 44px 0 0;
+		padding: 0;
+		border-top: 1px solid #d8d8d3;
+		list-style: none;
+	}
+
+	.features li {
+		padding: 11px 0;
+		border-bottom: 1px solid #d8d8d3;
+	}
+
+	.voice {
+		margin-top: 24px;
+		color: #686863;
+		font-size: 13px;
+	}
+
+	.voice p {
+		margin: 3px 0;
+	}
+
+	.voice strong {
+		color: #20201e;
+		font-weight: 600;
+	}
+
+	a {
+		color: #20201e;
+		font-weight: 600;
+		text-underline-offset: 3px;
+	}
+
+	.server {
+		margin-top: 44px;
+		padding-top: 24px;
+		border-top: 1px solid #20201e;
+	}
+
+	.label {
+		margin: 0 0 10px;
+		color: #686863;
+		font-size: 12px;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.address {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 20px;
+	}
+
+	.address code {
+		font: inherit;
+		font-size: clamp(1.4rem, 6vw, 2rem);
+		font-weight: 500;
+		letter-spacing: -0.03em;
+	}
+
+	button {
+		flex: 0 0 auto;
+		min-height: 44px;
+		padding: 0 17px;
+		border: 1px solid #20201e;
+		border-radius: 3px;
+		background: #20201e;
+		color: #fff;
+		cursor: pointer;
+		font: 600 13px 'DM Sans', sans-serif;
+		transition: background-color 140ms ease, color 140ms ease;
+	}
+
+	button:hover {
+		background: transparent;
+		color: #20201e;
+	}
+
+	:focus-visible {
+		outline: 2px solid #20201e;
+		outline-offset: 3px;
+	}
+
+	.login {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 4px 24px;
+		margin-top: 16px;
+		color: #686863;
+		font-size: 13px;
+	}
+
+	.login p {
+		margin: 0;
+	}
+
+	.login code {
+		color: #20201e;
+		font: inherit;
+		font-weight: 500;
+	}
+
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	@media (max-width: 520px) {
+		.address {
+			align-items: stretch;
+			flex-direction: column;
+		}
+
+		button {
+			width: 100%;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		button {
+			transition: none;
+		}
+	}
+</style>
